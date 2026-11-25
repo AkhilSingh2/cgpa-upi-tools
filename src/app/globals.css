@@ -19,6 +19,8 @@ img, svg { max-width: 100%; }
 .hm-prose h2, .hm-prose h3 {
   margin: var(--sutra-space-4) 0 0;
   font-family: var(--sutra-font-family-display);
+  font-weight: var(--sutra-font-weight-medium);
+  letter-spacing: -0.02em;
   line-height: var(--sutra-font-line-xl);
 }
 .hm-prose h2 { font-size: var(--sutra-font-size-2xl); }
@@ -34,7 +36,7 @@ code {
 .hm-quote {
   margin: 0;
   padding: var(--sutra-space-3) var(--sutra-space-4);
-  border-left: 4px solid var(--sutra-color-border-primary);
+  border-left: 1px solid var(--sutra-color-border-default);
   background: var(--sutra-color-bg-subtle);
   border-radius: var(--sutra-radius-md);
 }
@@ -51,8 +53,7 @@ code {
   text-decoration: none;
   display: flex;
   min-width: 0;
-  border-radius: var(--sutra-radius-xl);
-  transition: transform var(--sutra-motion-duration-fast) var(--sutra-motion-easing-emphasis);
+  border-radius: var(--sutra-radius-md);
 }
 .hm-card-link .sutra-card {
   width: 100%;
@@ -60,7 +61,7 @@ code {
   flex-direction: column;
 }
 .hm-card-link .sutra-card-body { flex: 1; }
-.hm-card-link:hover { transform: translateY(-2px); }
+.hm-card-link:hover .sutra-card { border-color: var(--sutra-color-border-strong); }
 .hm-card-kicker { margin-bottom: var(--sutra-space-2); }
 .hm-card-action {
   color: var(--sutra-color-fg-link);
@@ -71,20 +72,15 @@ code {
   align-items: center;
   min-height: 48px;
   padding: var(--sutra-space-3) var(--sutra-space-4);
-  border: 2px solid var(--sutra-color-border-default);
-  border-radius: var(--sutra-radius-lg);
+  border: 1px solid var(--sutra-color-border-default);
+  border-radius: var(--sutra-radius-md);
   background: var(--sutra-color-bg-surface);
   box-shadow: var(--sutra-shadow-sm);
   text-decoration: none;
-  font-weight: var(--sutra-font-weight-semibold);
-  transition:
-    transform var(--sutra-motion-duration-fast) var(--sutra-motion-easing-emphasis),
-    box-shadow var(--sutra-motion-duration-fast) var(--sutra-motion-easing-emphasis);
+  font-weight: var(--sutra-font-weight-medium);
+  transition: border-color var(--sutra-motion-duration-fast) var(--sutra-motion-easing-standard);
 }
-.hm-links a:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--sutra-shadow-md);
-}
+.hm-links a:hover { border-color: var(--sutra-color-border-strong); }
 
 .hm-tool {
   display: grid;
@@ -98,6 +94,8 @@ code {
 .hm-formula {
   margin: 0;
   font-family: var(--sutra-font-family-display);
+  font-weight: var(--sutra-font-weight-medium);
+  letter-spacing: -0.02em;
   font-size: var(--sutra-font-size-xl);
   line-height: var(--sutra-font-line-xl);
 }
@@ -113,7 +111,7 @@ code {
 .hm-note {
   margin: 0;
   padding: var(--sutra-space-3) var(--sutra-space-4);
-  border: 2px solid var(--sutra-color-border-default);
+  border: 1px solid var(--sutra-color-border-default);
   border-radius: var(--sutra-radius-md);
   background: var(--sutra-color-bg-subtle);
 }
@@ -121,8 +119,8 @@ code {
 .standee {
   color: var(--sutra-color-fg-default);
   background: var(--sutra-color-bg-surface);
-  border: 2px solid var(--sutra-color-border-default);
-  border-radius: var(--sutra-radius-xl);
+  border: 1px solid var(--sutra-color-border-default);
+  border-radius: var(--sutra-radius-md);
   box-shadow: var(--sutra-shadow-lg);
   padding: 0 0 var(--sutra-space-5);
   overflow: hidden;
@@ -135,15 +133,18 @@ code {
   text-align: center;
   margin: var(--sutra-space-2) var(--sutra-space-5) var(--sutra-space-3);
   font-family: var(--sutra-font-family-display);
+  font-weight: var(--sutra-font-weight-medium);
+  letter-spacing: -0.02em;
   font-size: var(--sutra-font-size-3xl);
   line-height: var(--sutra-font-line-3xl);
 }
 .standee-bar {
   background: var(--sutra-color-bg-primary);
   color: var(--sutra-color-fg-on-primary);
+  border-bottom: 1px solid var(--sutra-color-border-default);
   text-align: center;
-  font-weight: var(--sutra-font-weight-bold);
-  letter-spacing: 0.14em;
+  font-weight: var(--sutra-font-weight-medium);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   padding: var(--sutra-space-4);
 }
@@ -161,7 +162,7 @@ code {
   align-items: center;
   min-height: 220px;
   margin: var(--sutra-space-2) var(--sutra-space-5);
-  background: var(--sutra-color-bg-surface);
+  background: var(--sutra-color-white);
 }
 .qr-frame svg { width: min(100%, 280px); height: auto; }
 .qr-frame p {
@@ -199,9 +200,6 @@ code {
   .hm-result { position: sticky; top: var(--sutra-space-4); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hm-card-link:hover, .hm-links a:hover { transform: none; }
-}
 
 @media print {
   .sutra-header,

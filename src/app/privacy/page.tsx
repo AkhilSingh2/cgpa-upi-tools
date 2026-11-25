@@ -37,7 +37,7 @@ export default function PrivacyPage() {
         <p>Hundredmark is not affiliated with NPCI, BHIM, any bank, or any UPI app.</p>
         <h2>What the browser stores</h2>
         <p>
-          The theme — light, dark, high contrast, or match the system — and the English display language are saved in local storage on your device. Type follows the design tokens and falls back to fonts already on the device. The page does not call Google Fonts, a QR API, or an advertising network while you use it.
+          The theme — light, dark, high contrast, or match the system — and the English display language are saved in local storage on your device. Fraunces, Inter, Noto Sans Devanagari, and IBM Plex Mono ship with the site, under the SIL Open Font License. The page does not call Google Fonts, a QR API, or an advertising network while you use it.
         </p>
         <h2>Formulas</h2>
         <p>

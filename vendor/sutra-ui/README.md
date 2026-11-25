@@ -1,6 +1,6 @@
 # Vendored Sutra UI
 
-Built artifacts from [Sutra UI](https://github.com/AkhilSingh2/sutra-ui) `main` at commit `15ffa907a044f074abb6df4d331f179e8dda7a8b` (docs: https://akhilsingh2.github.io/sutra-ui/).
+Built artifacts from [Sutra UI](https://github.com/AkhilSingh2/sutra-ui) `main` at commit `ba0f4b4510f93ad44ac77e41d99d27e031895763` (docs: https://akhilsingh2.github.io/sutra-ui/). This drop is the gallery restyle: Fraunces for display, ivory and ink surfaces, and a gold rule.
 
 `@sutra-ui/tokens` and `@sutra-ui/react` are not published to npm. Upstream `dist/` is generated and is not in the git tree. A git dependency cannot satisfy `npm ci`: npm would fetch source that does not match the package `exports`, and the React package depends on the tokens package with the pnpm `workspace:*` protocol. These folders are the output of `pnpm build:libs` so CI can install them with `file:` dependencies and no extra toolchain.
 
