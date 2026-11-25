@@ -1,17 +1,15 @@
 'use client'
 
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import QRCode from 'qrcode'
+import { Alert, Button, Card, CardBody, Input } from '@sutra-ui/react'
 import { buildUpiLink, downloadSlug, UPI_NOTE_MAX, type UpiLinkResult } from '@/lib/upi'
 
+// Module colours stay dark on white so a phone can scan the code. They are not theme colours.
 const QR_OPTIONS = {
   errorCorrectionLevel: 'H' as const,
   margin: 4,
   color: { dark: '#14221c', light: '#ffffff' },
-}
-
-async function copyText(value: string) {
-  await navigator.clipboard.writeText(value)
 }
 
 function saveFile(filename: string, href: string) {
@@ -24,7 +22,6 @@ function saveFile(filename: string, href: string) {
 }
 
 export function UpiGenerator() {
-  const fieldId = useId()
   const [pa, setPa] = useState('')
   const [pn, setPn] = useState('')
   const [am, setAm] = useState('')
@@ -76,7 +73,7 @@ export function UpiGenerator() {
   async function copyLink() {
     if (!result.ok) return
     try {
-      await copyText(result.url)
+      await navigator.clipboard.writeText(result.url)
       setCopyState('copied')
     } catch {
       setCopyState('manual')
@@ -102,134 +99,103 @@ export function UpiGenerator() {
   const fieldError = showError && !result.ok ? result : null
 
   return (
-    <div className="upi-layout">
-      <div className="no-print">
-        <p className="privacy-callout">
-          <strong>Nothing leaves this browser.</strong> The UPI ID, name, amount, note, and logo are used only on this device to build the QR code. Hundredmark is not affiliated with NPCI, BHIM, or any bank or UPI app.
-        </p>
-        <form
-          className="tool-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            setTouched(true)
-          }}
-        >
-          <div className="field">
-            <label htmlFor={`${fieldId}-pa`}>UPI ID</label>
-            <input
-              id={`${fieldId}-pa`}
-              autoComplete="off"
-              autoCapitalize="off"
-              autoCorrect="off"
-              spellCheck={false}
-              placeholder="shop@okaxis"
-              value={pa}
-              aria-invalid={fieldError?.field === 'pa'}
-              aria-describedby={fieldError?.field === 'pa' ? `${fieldId}-error` : `${fieldId}-pa-hint`}
-              onBlur={() => setTouched(true)}
-              onChange={(event) => setPa(event.target.value)}
-            />
-            <p className="hint" id={`${fieldId}-pa-hint`}>
-              The address people pay, such as name@okhdfcbank or 9876543210@ybl.
-            </p>
-          </div>
-          <div className="field">
-            <label htmlFor={`${fieldId}-pn`}>Payee name</label>
-            <input
-              id={`${fieldId}-pn`}
-              autoComplete="organization"
-              placeholder="Ravi Stores"
-              value={pn}
-              aria-invalid={fieldError?.field === 'pn'}
-              aria-describedby={fieldError?.field === 'pn' ? `${fieldId}-error` : `${fieldId}-pn-hint`}
-              onBlur={() => setTouched(true)}
-              onChange={(event) => setPn(event.target.value)}
-            />
-            <p className="hint" id={`${fieldId}-pn-hint`}>
-              This name is stored in the QR and printed on the poster.
-            </p>
-          </div>
-          <div className="split">
-            <div className="field">
-              <label htmlFor={`${fieldId}-am`}>Amount in ₹, optional</label>
-              <input
-                id={`${fieldId}-am`}
-                inputMode="decimal"
+    <div className="hm-tool">
+      <div className="no-print hm-form">
+        <Alert tone="info" title="Nothing leaves this browser.">
+          The UPI ID, name, amount, note, and logo are used only on this device to build the QR code. Hundredmark is not affiliated with NPCI, BHIM, or any bank or UPI app.
+        </Alert>
+        <Card>
+          <CardBody className="hm-form">
+            <form
+              className="hm-form"
+              onSubmit={(event) => {
+                event.preventDefault()
+                setTouched(true)
+              }}
+            >
+              <Input
+                label="UPI ID"
                 autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
                 spellCheck={false}
-                placeholder="Leave blank"
-                value={am}
-                aria-invalid={fieldError?.field === 'am'}
-                aria-describedby={fieldError?.field === 'am' ? `${fieldId}-error` : `${fieldId}-am-hint`}
-                onChange={(event) => setAm(event.target.value)}
+                placeholder="shop@okaxis"
+                value={pa}
+                hint="The address people pay, such as name@okhdfcbank or 9876543210@ybl."
+                error={fieldError?.field === 'pa' ? fieldError.message : undefined}
+                onBlur={() => setTouched(true)}
+                onChange={(event) => setPa(event.target.value)}
               />
-              <p className="hint" id={`${fieldId}-am-hint`}>
-                Leave this blank and the payer types the amount in their app.
-              </p>
-            </div>
-            <div className="field">
-              <label htmlFor={`${fieldId}-tn`}>Note, optional</label>
-              <input
-                id={`${fieldId}-tn`}
-                maxLength={UPI_NOTE_MAX}
-                value={tn}
-                aria-invalid={fieldError?.field === 'tn'}
-                aria-describedby={fieldError?.field === 'tn' ? `${fieldId}-error` : undefined}
-                placeholder="Counter 2"
-                onChange={(event) => setTn(event.target.value)}
+              <Input
+                label="Payee name"
+                autoComplete="organization"
+                placeholder="Ravi Stores"
+                value={pn}
+                hint="This name is stored in the QR and printed on the poster."
+                error={fieldError?.field === 'pn' ? fieldError.message : undefined}
+                onBlur={() => setTouched(true)}
+                onChange={(event) => setPn(event.target.value)}
               />
-            </div>
-          </div>
-          <div className="field">
-            <label htmlFor={`${fieldId}-logo`}>Logo for the poster, optional</label>
-            <input
-              id={`${fieldId}-logo`}
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/svg+xml"
-              onChange={(event) => onLogo(event.target.files?.[0])}
-            />
-            <p className="hint">The file is not uploaded. Remove it any time.</p>
-            {logo ? (
-              <button type="button" className="text-button" onClick={() => setLogo('')}>
-                Remove logo
-              </button>
-            ) : null}
-            {logoError ? (
-              <p className="error" role="alert">
-                {logoError}
+              <div className="hm-split">
+                <Input
+                  label="Amount in ₹, optional"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="Leave blank"
+                  value={am}
+                  hint="Leave this blank and the payer types the amount in their app."
+                  error={fieldError?.field === 'am' ? fieldError.message : undefined}
+                  onChange={(event) => setAm(event.target.value)}
+                />
+                <Input
+                  label="Note, optional"
+                  maxLength={UPI_NOTE_MAX}
+                  value={tn}
+                  placeholder="Counter 2"
+                  error={fieldError?.field === 'tn' ? fieldError.message : undefined}
+                  onChange={(event) => setTn(event.target.value)}
+                />
+              </div>
+              <Input
+                label="Logo for the poster, optional"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                hint="The file is not uploaded. Remove it any time."
+                error={logoError || undefined}
+                onChange={(event) => onLogo(event.target.files?.[0])}
+              />
+              {logo ? (
+                <Button type="button" variant="ghost" onClick={() => setLogo('')}>
+                  Remove logo
+                </Button>
+              ) : null}
+              {result.ok && result.highAmount ? (
+                <Alert tone="warning" title="Above ₹1,00,000">
+                  Many banks cap one UPI payment at ₹1,00,000. The QR still contains this amount.
+                </Alert>
+              ) : null}
+              <div className="hm-actions">
+                <Button type="button" variant="primary" disabled={!result.ok} onClick={copyLink}>
+                  Copy UPI link
+                </Button>
+                <Button type="button" variant="secondary" disabled={!result.ok} onClick={downloadPng}>
+                  Download PNG
+                </Button>
+                <Button type="button" variant="secondary" disabled={!result.ok || !svg} onClick={downloadSvg}>
+                  Download SVG
+                </Button>
+                <Button type="button" variant="secondary" disabled={!result.ok} onClick={() => window.print()}>
+                  Print poster
+                </Button>
+              </div>
+              <Input className="hm-mono" label="UPI payment link" readOnly value={result.ok ? result.url : ''} onFocus={(event) => event.currentTarget.select()} />
+              <p className="sutra-hint" aria-live="polite">
+                {copyState === 'copied' ? 'Copied UPI link.' : copyState === 'manual' ? 'Select the link and copy it.' : 'A standard upi://pay link. No server is involved.'}
               </p>
-            ) : null}
-          </div>
-          {fieldError ? (
-            <p className="error" id={`${fieldId}-error`} role="alert">
-              {fieldError.message}
-            </p>
-          ) : null}
-          {result.ok && result.highAmount ? (
-            <p className="hint">Many banks cap one UPI payment at ₹1,00,000. The QR still contains this amount.</p>
-          ) : null}
-          <div className="actions">
-            <button type="button" className="primary" disabled={!result.ok} onClick={copyLink}>
-              Copy UPI link
-            </button>
-            <button type="button" className="secondary" disabled={!result.ok} onClick={downloadPng}>
-              Download PNG
-            </button>
-            <button type="button" className="secondary" disabled={!result.ok || !svg} onClick={downloadSvg}>
-              Download SVG
-            </button>
-            <button type="button" className="secondary" disabled={!result.ok} onClick={() => window.print()}>
-              Print poster
-            </button>
-          </div>
-          <div className="share-box">
-            <label htmlFor={`${fieldId}-link`}>UPI payment link</label>
-            <input id={`${fieldId}-link`} readOnly value={result.ok ? result.url : ''} onFocus={(event) => event.currentTarget.select()} />
-            <p className="hint" aria-live="polite">
-              {copyState === 'copied' ? 'Copied UPI link.' : copyState === 'manual' ? 'Select the link and copy it.' : 'A standard upi://pay link. No server is involved.'}
-            </p>
-          </div>
-        </form>
+            </form>
+          </CardBody>
+        </Card>
       </div>
 
       <article className="standee" aria-label="Printable payment poster">

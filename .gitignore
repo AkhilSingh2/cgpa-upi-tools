@@ -10,3 +10,4 @@ tsconfig.tsbuildinfo
 .vercel
 playwright-report
 test-results
+e2e-dist

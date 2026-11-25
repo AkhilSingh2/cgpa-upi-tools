@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import lightTokens from '@sutra-ui/tokens/tokens/light'
 import { basePath, SITE_TAGLINE } from '@/lib/site'
 
 export const dynamic = 'force-static'
@@ -11,8 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: SITE_TAGLINE,
     start_url: `${prefix}/`,
     display: 'standalone',
-    background_color: '#f3f0e8',
-    theme_color: '#0f6e56',
+    background_color: lightTokens['color.bg.canvas'],
+    theme_color: lightTokens['color.bg.primary'],
     lang: 'en',
     icons: [{ src: `${prefix}/icon.svg`, sizes: 'any', type: 'image/svg+xml' }],
   }
