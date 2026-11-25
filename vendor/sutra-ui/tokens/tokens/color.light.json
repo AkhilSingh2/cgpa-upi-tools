@@ -1,0 +1,99 @@
+{
+  "color": {
+    "bg": {
+      "$type": "color",
+      "canvas": { "$value": "{color.ivory.100}" },
+      "surface": { "$value": "{color.ivory.50}" },
+      "subtle": { "$value": "{color.ivory.200}" },
+      "sunken": { "$value": "{color.ivory.300}" },
+      "inverse": { "$value": "{color.ink.900}" },
+      "primary": { "$value": "{color.ink.900}" },
+      "primary-hover": { "$value": "{color.ink.700}" },
+      "primary-subtle": { "$value": "#e5eeea" },
+      "accent": { "$value": "{color.oxblood.700}" },
+      "accent-hover": { "$value": "{color.oxblood.800}" },
+      "accent-subtle": { "$value": "#f3e4e1" },
+      "danger": { "$value": "{color.oxblood.700}" },
+      "danger-hover": { "$value": "{color.oxblood.800}" },
+      "danger-subtle": { "$value": "#f6e4e2" },
+      "success": { "$value": "{color.emerald.800}" },
+      "success-subtle": { "$value": "#e4efe8" },
+      "warning-subtle": { "$value": "#f3ead6" },
+      "info-subtle": { "$value": "{color.indigo.100}" }
+    },
+    "fg": {
+      "$type": "color",
+      "default": { "$value": "{color.ink.900}" },
+      "muted": { "$value": "#5c5348" },
+      "on-primary": { "$value": "{color.ivory.50}" },
+      "on-accent": { "$value": "{color.ivory.50}" },
+      "on-danger": { "$value": "{color.ivory.50}" },
+      "on-success": { "$value": "{color.ivory.50}" },
+      "on-inverse": { "$value": "{color.ivory.100}" },
+      "link": { "$value": "#1e4a44" },
+      "primary": { "$value": "{color.emerald.700}" },
+      "accent": { "$value": "{color.oxblood.700}" },
+      "danger": { "$value": "{color.oxblood.700}" },
+      "success": { "$value": "{color.emerald.800}" },
+      "warning": { "$value": "{color.gold.800}" },
+      "info": { "$value": "{color.indigo.700}" }
+    },
+    "border": {
+      "$type": "color",
+      "default": { "$value": "{color.gold.700}" },
+      "strong": { "$value": "#5c5348" },
+      "primary": { "$value": "{color.emerald.700}" }
+    },
+    "focus": { "$type": "color", "ring": { "$value": "{color.oxblood.700}" } },
+    "thread": {
+      "$type": "color",
+      "start": { "$value": "{color.gold.700}" },
+      "end": { "$value": "{color.emerald.700}" }
+    }
+  },
+  "gradient": {
+    "rule": {
+      "$type": "other",
+      "$value": "linear-gradient(90deg, transparent, #8a7350 18%, #8a7350 82%, transparent)"
+    },
+    "veil": {
+      "$type": "other",
+      "$value": "radial-gradient(680px 320px at 100% 0%, rgba(138, 115, 80, 0.16), transparent 62%)"
+    }
+  },
+  "pattern": {
+    "kalamkari": {
+      "$type": "other",
+      "$description": "Fine line grid, used as a margin ornament. Keep it off body text.",
+      "$value": "repeating-linear-gradient(90deg, transparent 0 23px, rgba(138, 115, 80, 0.45) 23px 24px), repeating-linear-gradient(0deg, transparent 0 23px, rgba(138, 115, 80, 0.45) 23px 24px)"
+    },
+    "blockprint": {
+      "$type": "other",
+      "$description": "A single hairline repeat, like a block-print edge.",
+      "$value": "repeating-linear-gradient(135deg, transparent 0 15px, rgba(110, 44, 40, 0.28) 15px 16px)"
+    }
+  },
+  "shadow": {
+    "sm": {
+      "$type": "shadow",
+      "$value": [
+        { "color": "rgba(22, 20, 28, 0.05)", "offsetX": "0px", "offsetY": "1px", "blur": "1px", "spread": "0px" },
+        { "color": "rgba(22, 20, 28, 0.04)", "offsetX": "0px", "offsetY": "8px", "blur": "20px", "spread": "0px" }
+      ]
+    },
+    "md": {
+      "$type": "shadow",
+      "$value": [
+        { "color": "rgba(22, 20, 28, 0.05)", "offsetX": "0px", "offsetY": "1px", "blur": "2px", "spread": "0px" },
+        { "color": "rgba(22, 20, 28, 0.06)", "offsetX": "0px", "offsetY": "16px", "blur": "40px", "spread": "0px" }
+      ]
+    },
+    "lg": {
+      "$type": "shadow",
+      "$value": [
+        { "color": "rgba(22, 20, 28, 0.04)", "offsetX": "0px", "offsetY": "2px", "blur": "4px", "spread": "0px" },
+        { "color": "rgba(22, 20, 28, 0.08)", "offsetX": "0px", "offsetY": "28px", "blur": "64px", "spread": "0px" }
+      ]
+    }
+  }
+}

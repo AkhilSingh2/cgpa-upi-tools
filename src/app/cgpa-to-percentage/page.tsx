@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { CgpaCalculator } from '@/components/CgpaCalculator'
 import { FaqList } from '@/components/FaqList'
 import { JsonLd } from '@/components/JsonLd'
 import { SameCgpaTable } from '@/components/SchemeTables'
+import { SiteFrame } from '@/components/SiteFrame'
 import { pageMetadata } from '@/lib/metadata'
 import { breadcrumbJsonLd, faqJsonLd, webAppJsonLd } from '@/lib/schema'
 
@@ -49,22 +49,26 @@ export const metadata: Metadata = pageMetadata({ title, description, path: '/cgp
 
 export default function CgpaPage() {
   return (
-    <main id="content" className="page" tabIndex={-1}>
+    <SiteFrame
+      title="CGPA to percentage calculator"
+      description="Convert CGPA to percentage, turn a percentage back into CGPA, or average SGPA across semesters. Each preset uses one published formula, with the circular linked under the result. The maths runs in your browser."
+      breadcrumb={crumbs}
+      related={[
+        {
+          href: '/upi-qr-code-generator/',
+          title: 'UPI QR code',
+          description: 'Build a upi://pay code in the browser and print a shop poster.',
+        },
+      ]}
+    >
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <JsonLd data={faqJsonLd(faqs)} />
       <JsonLd data={webAppJsonLd({ name: title, description, path: '/cgpa-to-percentage/', category: 'EducationalApplication' })} />
-      <Breadcrumbs items={crumbs} />
-      <header className="page-intro">
-        <h1>CGPA to percentage calculator</h1>
-        <p className="lede">
-          Convert CGPA to percentage, turn a percentage back into CGPA, or average SGPA across semesters. Each preset uses one published formula, with the circular linked under the result. The maths runs in your browser.
-        </p>
-      </header>
       <noscript>
-        <p className="callout">Turn on JavaScript to calculate. The tables and cited formulas below are still readable.</p>
+        <p className="hm-note">Turn on JavaScript to calculate. The tables and cited formulas below are still readable.</p>
       </noscript>
       <CgpaCalculator initialPreset="cbse" navigateOnPresetChange={false} />
-      <section className="prose">
+      <section className="hm-prose">
         <h2>The same CGPA is not the same percentage</h2>
         <p>
           “CGPA to percentage” is not one sum. A person comparing an 8.5 from CBSE with an 8.5 from VTU or Mumbai University is comparing different scales. The default formula for each institution is below. Where a university changed the rule, the institution page has every scheme we could cite.
@@ -74,22 +78,22 @@ export default function CgpaPage() {
           Need a multiplier that is not in the list? Choose Custom formula. Percentage = multiplier × CGPA + adjustment. VTU’s older scheme is multiplier 10 and adjustment −7.5.
         </p>
       </section>
-      <section className="prose" id="percentage-to-cgpa">
+      <section className="hm-prose" id="percentage-to-cgpa">
         <h2>Percentage to CGPA</h2>
         <p>
           Reverse conversion uses the same formula, solved for CGPA. Multiply rules divide. Offset rules divide and then add the offset back. Mumbai University’s circulars also say to round the percentage up to the next whole number, so the reverse step uses the formula before that rounding. One whole-number percentage can therefore come from a small range of CGPAs.
         </p>
       </section>
-      <section className="prose" id="sgpa-to-cgpa">
+      <section className="hm-prose" id="sgpa-to-cgpa">
         <h2>SGPA to CGPA</h2>
         <p>
           SGPA is one semester. CGPA is the whole programme. The regulations used here define it as the credit-weighted average: add credits × SGPA for every semester, divide by the total credits, and round to two decimal places. A transcript computed from individual course grades can differ by a few hundredths from an average of already-rounded SGPAs. Use the CGPA printed on the consolidated grade card when you have it.
         </p>
       </section>
       <FaqList faqs={faqs} />
-      <section className="prose">
+      <section className="hm-prose">
         <h2>Choose the institution</h2>
-        <ul className="link-grid">
+        <ul className="hm-links">
           <li>
             <Link href="/cgpa-to-percentage/cbse/">CBSE CGPA to percentage</Link>
           </li>
@@ -119,6 +123,6 @@ export default function CgpaPage() {
           Making a payment code instead? Use the <Link href="/upi-qr-code-generator/">free UPI QR code generator</Link>.
         </p>
       </section>
-    </main>
+    </SiteFrame>
   )
 }

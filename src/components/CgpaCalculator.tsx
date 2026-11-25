@@ -1,7 +1,21 @@
 'use client'
 
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import {
+  Button,
+  Card,
+  CardBody,
+  Input,
+  NumberInput,
+  ResultPanel,
+  Select,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+} from '@sutra-ui/react'
+import { ExternalLink } from '@/components/ExternalLink'
 import { CUSTOM_PRESET_ID, PRESETS, getPreset, getScheme } from '@/data/presets'
 import {
   classLabel,
@@ -18,12 +32,27 @@ import {
 } from '@/lib/cgpa'
 import { buildSharePath, parseShareSearch, type CalcMode, type SemesterDraft, type ShareState } from '@/lib/share'
 import { withBasePath } from '@/lib/site'
-import { ExternalLink } from '@/components/ExternalLink'
 
 const EMPTY_ROWS: SemesterDraft[] = [
   { sgpa: '', credits: '' },
   { sgpa: '', credits: '' },
 ]
+
+const MODES = [
+  ['cgpa', 'CGPA to %'],
+  ['pct', 'Percentage to CGPA'],
+  ['sgpa', 'SGPA to CGPA'],
+] as const
+
+function asNumber(text: string): number | null {
+  const trimmed = text.trim()
+  if (!trimmed) return null
+  return parseDecimal(trimmed)
+}
+
+function asText(value: number | null): string {
+  return value === null ? '' : String(value)
+}
 
 function parseSemesters(rows: SemesterDraft[]): { ok: true; rows: { sgpa: number; credits: number }[] } | { ok: false; message: string } | { ok: 'empty' } {
   const parsed: { sgpa: number; credits: number }[] = []
@@ -45,6 +74,14 @@ function parseSemesters(rows: SemesterDraft[]): { ok: true; rows: { sgpa: number
   return { ok: true, rows: parsed }
 }
 
+function errorTarget(message: string | null, mode: CalcMode): 'slope' | 'intercept' | 'scale' | CalcMode | null {
+  if (!message) return null
+  if (message.startsWith('Enter a scale')) return 'scale'
+  if (message.startsWith('Enter a multiplier')) return 'slope'
+  if (message.startsWith('Enter an adjustment')) return 'intercept'
+  return mode
+}
+
 export function CgpaCalculator({
   initialPreset,
   navigateOnPresetChange,
@@ -52,7 +89,6 @@ export function CgpaCalculator({
   initialPreset: string
   navigateOnPresetChange: boolean
 }) {
-  const fieldId = useId()
   const [presetId, setPresetId] = useState(initialPreset)
   const [schemeId, setSchemeId] = useState(() => getPreset(initialPreset)?.defaultScheme ?? '')
   const [mode, setMode] = useState<CalcMode>('cgpa')
@@ -175,6 +211,7 @@ export function CgpaCalculator({
 
   const result = evaluation.result?.ok ? evaluation.result : null
   const resultError = evaluation.error ?? (evaluation.result && !evaluation.result.ok ? evaluation.result.message : null)
+  const target = errorTarget(resultError, mode)
   const band =
     result && scheme?.equivalence
       ? classLabel(scheme.equivalence.basis === 'cgpa' ? result.cgpa : result.percentage, scheme.equivalence.bands)
@@ -184,232 +221,193 @@ export function CgpaCalculator({
   const invalidCustom = !preset && (parseDecimal(slope) === null || parseDecimal(slope) === 0)
   const shownExpression = invalidCustom ? 'Percentage = multiplier × CGPA + adjustment' : expression
   const shownReverse = invalidCustom ? 'CGPA = (Percentage − adjustment) ÷ multiplier' : reverse
+  const presetOptions = [
+    ...PRESETS.filter((item) => item.kind === 'board').map((item) => ({ value: item.slug, label: item.shortName })),
+    ...PRESETS.filter((item) => item.kind === 'university').map((item) => ({ value: item.slug, label: item.name })),
+    { value: CUSTOM_PRESET_ID, label: 'Custom formula' },
+  ]
+
+  const resultValue = result ? (mode === 'cgpa' ? formatNumber(result.percentage) : formatNumber(result.cgpa)) : '—'
+  const resultCaption = result
+    ? mode === 'cgpa'
+      ? `From CGPA ${formatNumber(result.cgpa)}`
+      : mode === 'sgpa'
+        ? `Percentage ${formatNumber(result.percentage)}% · ${formatNumber(result.totalCredits ?? 0)} credits`
+        : `This formula publishes ${formatNumber(result.percentage)}% for that CGPA`
+    : resultError
+      ? 'Fix the highlighted value to see a result.'
+      : 'Enter a value. The result appears here.'
 
   return (
-    <div className="tool-layout">
-      <form className="tool-form" onSubmit={(event) => event.preventDefault()}>
-        <div className="field">
-          <label htmlFor={`${fieldId}-preset`}>University or board</label>
-          <select id={`${fieldId}-preset`} value={preset ? preset.slug : CUSTOM_PRESET_ID} onChange={(event) => onPresetChange(event.target.value)}>
-            <optgroup label="Board">
-              {PRESETS.filter((item) => item.kind === 'board').map((item) => (
-                <option key={item.slug} value={item.slug}>
-                  {item.shortName}
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="University">
-              {PRESETS.filter((item) => item.kind === 'university').map((item) => (
-                <option key={item.slug} value={item.slug}>
-                  {item.name}
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="Other">
-              <option value={CUSTOM_PRESET_ID}>Custom formula</option>
-            </optgroup>
-          </select>
-        </div>
+    <div className="hm-tool">
+      <Card>
+        <CardBody className="hm-form">
+          <Select
+            label="University or board"
+            hint="Boards, then universities, then a formula you type."
+            value={preset ? preset.slug : CUSTOM_PRESET_ID}
+            options={presetOptions}
+            onChange={(event) => onPresetChange(event.target.value)}
+          />
 
-        {preset && preset.schemes.length > 1 ? (
-          <fieldset className="choice-list">
-            <legend>Scheme</legend>
-            {preset.schemes.map((item) => (
-              <label key={item.id} className="choice">
-                <input
-                  type="radio"
-                  name={`${fieldId}-scheme`}
-                  value={item.id}
-                  checked={scheme?.id === item.id}
-                  onChange={() => setSchemeId(item.id)}
-                />
-                <span>
-                  <strong>{item.label}</strong>
-                  <span className="choice-note">{item.appliesTo}</span>
-                </span>
-              </label>
-            ))}
-          </fieldset>
-        ) : null}
-
-        {!preset ? (
-          <div className="split">
-            <div className="field">
-              <label htmlFor={`${fieldId}-slope`}>Multiplier</label>
-              <input id={`${fieldId}-slope`} inputMode="decimal" autoComplete="off" spellCheck={false} value={slope} onChange={(event) => setSlope(event.target.value)} />
-            </div>
-            <div className="field">
-              <label htmlFor={`${fieldId}-intercept`}>Adjustment</label>
-              <input id={`${fieldId}-intercept`} inputMode="decimal" autoComplete="off" spellCheck={false} value={intercept} onChange={(event) => setIntercept(event.target.value)} />
-            </div>
-            <div className="field">
-              <label htmlFor={`${fieldId}-scale`}>Scale</label>
-              <input id={`${fieldId}-scale`} inputMode="decimal" autoComplete="off" spellCheck={false} value={scaleText} onChange={(event) => setScaleText(event.target.value)} />
-            </div>
-          </div>
-        ) : null}
-
-        <p className="formula-line" id={`${fieldId}-formula`}>
-          {shownExpression}
-          {scheme?.formula.rounding === 'ceil-integer' ? '. Then round up to the next whole number.' : ''}
-        </p>
-        <p className="hint">Reverse: {shownReverse}</p>
-
-        <fieldset className="segment-wrap">
-          <legend>Conversion</legend>
-          <div className="segment" role="radiogroup" aria-label="Conversion">
-            {(
-              [
-                ['cgpa', 'CGPA to %'],
-                ['pct', 'Percentage to CGPA'],
-                ['sgpa', 'SGPA to CGPA'],
-              ] as const
-            ).map(([value, label]) => (
-              <label key={value}>
-                <input type="radio" name={`${fieldId}-mode`} value={value} checked={mode === value} onChange={() => setMode(value)} />
-                {label}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        {mode === 'cgpa' ? (
-          <div className="field">
-            <label htmlFor={`${fieldId}-cgpa`}>CGPA</label>
-            <input
-              id={`${fieldId}-cgpa`}
-              inputMode="decimal"
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="8.20"
-              value={cgpa}
-              aria-invalid={mode === 'cgpa' && Boolean(resultError)}
-              aria-describedby={`${fieldId}-formula${resultError ? ` ${fieldId}-error` : ''}`}
-              onChange={(event) => setCgpa(event.target.value)}
+          {preset && preset.schemes.length > 1 ? (
+            <Select
+              label="Scheme"
+              hint={scheme?.appliesTo}
+              value={scheme?.id ?? ''}
+              options={preset.schemes.map((item) => ({ value: item.id, label: item.label }))}
+              onChange={(event) => setSchemeId(event.target.value)}
             />
-          </div>
-        ) : null}
+          ) : null}
 
-        {mode === 'pct' ? (
-          <div className="field">
-            <label htmlFor={`${fieldId}-pct`}>Percentage</label>
-            <input
-              id={`${fieldId}-pct`}
-              inputMode="decimal"
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="76"
-              value={pct}
-              aria-invalid={Boolean(resultError)}
-              aria-describedby={`${fieldId}-formula${resultError ? ` ${fieldId}-error` : ''}`}
-              onChange={(event) => setPct(event.target.value)}
-            />
-          </div>
-        ) : null}
+          {!preset ? (
+            <div className="hm-split">
+              <NumberInput
+                label="Multiplier"
+                decimals={2}
+                showScale={false}
+                value={asNumber(slope)}
+                error={target === 'slope' ? resultError ?? undefined : undefined}
+                onValueChange={(value) => setSlope(asText(value))}
+              />
+              <NumberInput
+                label="Adjustment"
+                decimals={2}
+                showScale={false}
+                value={asNumber(intercept)}
+                error={target === 'intercept' ? resultError ?? undefined : undefined}
+                onValueChange={(value) => setIntercept(asText(value))}
+              />
+              <NumberInput
+                label="Scale"
+                decimals={2}
+                showScale={false}
+                value={asNumber(scaleText)}
+                error={target === 'scale' ? resultError ?? undefined : undefined}
+                onValueChange={(value) => setScaleText(asText(value))}
+              />
+            </div>
+          ) : null}
 
-        {mode === 'sgpa' ? (
-          <fieldset className="semesters" aria-describedby={resultError ? `${fieldId}-error` : undefined}>
-            <legend>Semesters</legend>
-            {semesters.map((row, index) => (
-              <div className="semester" key={`${fieldId}-sem-${index}`}>
-                <div className="field">
-                  <label htmlFor={`${fieldId}-sgpa-${index}`}>Semester {index + 1} SGPA</label>
-                  <input
-                    id={`${fieldId}-sgpa-${index}`}
-                    inputMode="decimal"
-                    autoComplete="off"
-                    spellCheck={false}
-                    value={row.sgpa}
-                    onChange={(event) =>
-                      setSemesters((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, sgpa: event.target.value } : item)))
-                    }
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor={`${fieldId}-credits-${index}`}>Credits</label>
-                  <input
-                    id={`${fieldId}-credits-${index}`}
-                    inputMode="decimal"
-                    autoComplete="off"
-                    spellCheck={false}
-                    value={row.credits}
-                    onChange={(event) =>
-                      setSemesters((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, credits: event.target.value } : item)))
-                    }
-                  />
-                </div>
-                <button
+          <p className="hm-formula">
+            {shownExpression}
+            {scheme?.formula.rounding === 'ceil-integer' ? '. Then round up to the next whole number.' : ''}
+          </p>
+          <p className="sutra-hint">Reverse: {shownReverse}</p>
+
+          <Tabs value={mode} onValueChange={(value) => setMode(value as CalcMode)}>
+            <TabList label="Conversion">
+              {MODES.map(([value, label]) => (
+                <Tab key={value} value={value}>
+                  {label}
+                </Tab>
+              ))}
+            </TabList>
+            <TabPanel value="cgpa">
+              <NumberInput
+                label="CGPA"
+                decimals={2}
+                showScale={false}
+                placeholder="8.20"
+                value={asNumber(cgpa)}
+                error={target === 'cgpa' ? resultError ?? undefined : undefined}
+                onValueChange={(value) => setCgpa(asText(value))}
+              />
+            </TabPanel>
+            <TabPanel value="pct">
+              <NumberInput
+                label="Percentage"
+                decimals={2}
+                showScale={false}
+                placeholder="76"
+                value={asNumber(pct)}
+                error={target === 'pct' ? resultError ?? undefined : undefined}
+                onValueChange={(value) => setPct(asText(value))}
+              />
+            </TabPanel>
+            <TabPanel value="sgpa">
+              <fieldset className="hm-semesters">
+                <legend className="sutra-label">Semesters</legend>
+                {semesters.map((row, index) => (
+                  <div className="hm-semester" key={`sem-${index}`}>
+                    <NumberInput
+                      label={`Semester ${index + 1} SGPA`}
+                      decimals={2}
+                      showScale={false}
+                      value={asNumber(row.sgpa)}
+                      onValueChange={(value) =>
+                        setSemesters((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, sgpa: asText(value) } : item)))
+                      }
+                    />
+                    <NumberInput
+                      label="Credits"
+                      decimals={2}
+                      showScale={false}
+                      value={asNumber(row.credits)}
+                      onValueChange={(value) =>
+                        setSemesters((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, credits: asText(value) } : item)))
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      disabled={semesters.length === 1}
+                      onClick={() => setSemesters((current) => current.filter((_, itemIndex) => itemIndex !== index))}
+                    >
+                      Remove semester {index + 1}
+                    </Button>
+                  </div>
+                ))}
+                <Button
                   type="button"
-                  className="text-button"
-                  disabled={semesters.length === 1}
-                  onClick={() => setSemesters((current) => current.filter((_, itemIndex) => itemIndex !== index))}
+                  variant="secondary"
+                  disabled={semesters.length >= 12}
+                  onClick={() => setSemesters((current) => [...current, { sgpa: '', credits: '' }])}
                 >
-                  Remove semester {index + 1}
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="secondary"
-              disabled={semesters.length >= 12}
-              onClick={() => setSemesters((current) => [...current, { sgpa: '', credits: '' }])}
-            >
-              Add semester
-            </button>
-          </fieldset>
-        ) : null}
+                  Add semester
+                </Button>
+                {target === 'sgpa' && resultError ? <p className="sutra-error" role="alert">{resultError}</p> : null}
+              </fieldset>
+            </TabPanel>
+          </Tabs>
+        </CardBody>
+      </Card>
 
-        {resultError ? (
-          <p className="error" id={`${fieldId}-error`} role="alert">
-            {resultError}
-          </p>
-        ) : null}
-      </form>
+      <div className="hm-result" aria-live="polite">
+        <ResultPanel
+          label={mode === 'cgpa' ? 'Percentage' : 'CGPA'}
+          value={resultValue}
+          unit={result && mode === 'cgpa' ? '%' : undefined}
+          caption={resultCaption}
+          tone={result ? 'primary' : resultError ? 'danger' : 'default'}
+          breakdown={
+            result
+              ? [
+                  { label: 'Steps', value: result.steps },
+                  ...(band ? [{ label: 'Class', value: band }] : []),
+                ]
+              : undefined
+          }
+        />
+        <Card>
+          <CardBody className="hm-form">
+            <Input className="hm-mono" label="Shareable result link" readOnly value={shareUrl} onFocus={(event) => event.currentTarget.select()} />
+            <Button type="button" variant="primary" onClick={copyLink}>
+              Copy result link
+            </Button>
+            <p className="sutra-hint" aria-live="polite">
+              {copyState === 'copied' ? 'Copied result link.' : copyState === 'manual' ? 'Select the link and copy it.' : 'The link reopens this preset, scheme, and value.'}
+            </p>
+          </CardBody>
+        </Card>
+      </div>
 
-      <aside className="result-card" aria-live="polite">
-        <p className="eyebrow">{mode === 'cgpa' ? 'Percentage' : 'CGPA'}</p>
-        {result ? (
-          <>
-            <p className="result-value">
-              {mode === 'cgpa' ? (
-                <>
-                  {formatNumber(result.percentage)}
-                  <span className="unit">%</span>
-                </>
-              ) : (
-                formatNumber(result.cgpa)
-              )}
-            </p>
-            <p className="result-detail">
-              {mode === 'cgpa'
-                ? `From CGPA ${formatNumber(result.cgpa)}`
-                : mode === 'sgpa'
-                  ? `Percentage ${formatNumber(result.percentage)}% · ${formatNumber(result.totalCredits ?? 0)} credits`
-                  : `This formula publishes ${formatNumber(result.percentage)}% for that CGPA`}
-            </p>
-            <p className="steps">{result.steps}</p>
-            {band ? <p className="band">{band}</p> : null}
-          </>
-        ) : (
-          <p className="result-empty">{resultError ? 'Fix the highlighted value to see a result.' : 'Enter a value. The result appears here.'}</p>
-        )}
-        <div className="share-box">
-          <label htmlFor={`${fieldId}-share`}>Shareable result link</label>
-          <input id={`${fieldId}-share`} readOnly value={shareUrl} onFocus={(event) => event.currentTarget.select()} />
-          <button type="button" className="primary" onClick={copyLink}>
-            Copy result link
-          </button>
-          <p className="hint" aria-live="polite">
-            {copyState === 'copied' ? 'Copied result link.' : copyState === 'manual' ? 'Select the link and copy it.' : 'The link reopens this preset, scheme, and value.'}
-          </p>
-        </div>
-      </aside>
       {scheme ? (
-        <div className="citation tool-span">
+        <div className="hm-prose hm-span">
           <p>{scheme.caveat}</p>
           <p>
             Source: <ExternalLink href={scheme.source.url}>{scheme.source.title}</ExternalLink>
-            <span className="hint"> Checked {scheme.source.accessed}.</span>
+            <span className="sutra-hint"> Checked {scheme.source.accessed}.</span>
           </p>
           {preset && !navigateOnPresetChange ? (
             <p>
@@ -418,7 +416,7 @@ export function CgpaCalculator({
           ) : null}
         </div>
       ) : (
-        <p className="hint tool-span">Custom results are not a university rule. CBSE is multiplier 9.5 and adjustment 0. VTU’s older scheme is multiplier 10 and adjustment −7.5.</p>
+        <p className="sutra-hint hm-span">Custom results are not a university rule. CBSE is multiplier 9.5 and adjustment 0. VTU’s older scheme is multiplier 10 and adjustment −7.5.</p>
       )}
     </div>
   )

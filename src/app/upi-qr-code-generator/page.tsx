@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { FaqList } from '@/components/FaqList'
 import { JsonLd } from '@/components/JsonLd'
+import { SiteFrame } from '@/components/SiteFrame'
 import { UpiGenerator } from '@/components/UpiGenerator'
 import { pageMetadata } from '@/lib/metadata'
 import { breadcrumbJsonLd, faqJsonLd, webAppJsonLd } from '@/lib/schema'
@@ -53,21 +53,23 @@ export const metadata: Metadata = pageMetadata({ title, description, path: '/upi
 
 export default function UpiPage() {
   return (
-    <main id="content" className="page" tabIndex={-1}>
+    <SiteFrame
+      title="Free UPI QR code generator"
+      description="Build a UPI payment QR code without sending the details anywhere. Add a payee name, an optional fixed amount and note, then download a PNG or SVG or print a counter poster. Hundredmark is not part of NPCI."
+      breadcrumb={crumbs}
+      related={[
+        {
+          href: '/cgpa-to-percentage/',
+          title: 'CGPA to percentage',
+          description: 'Convert a grade with the formula the board or university published.',
+        },
+      ]}
+    >
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <JsonLd data={faqJsonLd(faqs)} />
       <JsonLd data={webAppJsonLd({ name: title, description, path: '/upi-qr-code-generator/', category: 'UtilitiesApplication' })} />
-      <div className="no-print">
-        <Breadcrumbs items={crumbs} />
-        <header className="page-intro">
-          <h1>Free UPI QR code generator</h1>
-          <p className="lede">
-            Build a UPI payment QR code without sending the details anywhere. Add a payee name, an optional fixed amount and note, then download a PNG or SVG or print a counter poster. Hundredmark is not part of NPCI.
-          </p>
-        </header>
-      </div>
       <UpiGenerator />
-      <section className="prose no-print">
+      <section className="hm-prose no-print">
         <h2>How the link is built</h2>
         <p>
           A UPI QR code is a picture of a link that starts with <code>upi://pay</code>. The payee address goes in <code>pa</code>, the name in <code>pn</code>, and the currency is <code>INR</code>. An amount goes in <code>am</code> only when you want the payer’s app to open with that amount filled in. A note goes in <code>tn</code>. This page percent-encodes those values and stops there. It does not add a merchant code, and it does not talk to a bank.
@@ -76,21 +78,21 @@ export default function UpiPage() {
           Leave the amount blank for a shop where every bill is different. Set it when the price is fixed, such as a ₹50 entry. Amounts above ₹1,00,000 are still encoded, with a warning, because many banks cap a single UPI payment at one lakh even when a QR asks for more.
         </p>
       </section>
-      <section className="prose no-print">
+      <section className="hm-prose no-print">
         <h2>Printing the poster</h2>
         <p>
-          The preview on this page is the poster. It is always black on white, including in dark mode, because a dark QR code on a light ground is what phones expect to scan. Put the logo beside the code, not on top of it. Print at actual size, on A4, and do not shrink the quiet margin around the code.
+          The preview on this page is the poster. The QR modules stay dark on white, including in dark mode, because that is what phones expect to scan. The frame around the code follows the theme. Put the logo beside the code, not on top of it. Print at actual size, on A4, and do not shrink the quiet margin around the code.
         </p>
       </section>
       <div className="no-print">
         <FaqList faqs={faqs} />
-        <section className="prose">
+        <section className="hm-prose">
           <h2>Also on Hundredmark</h2>
           <p>
             Looking up a grade instead? Use the <Link href="/cgpa-to-percentage/">CGPA to percentage calculator</Link>, including the <Link href="/cgpa-to-percentage/vtu/">VTU</Link> and <Link href="/cgpa-to-percentage/cbse/">CBSE</Link> formulas. Read how the site handles data on the <Link href="/privacy/">privacy page</Link>.
           </p>
         </section>
       </div>
-    </main>
+    </SiteFrame>
   )
 }

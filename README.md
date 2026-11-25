@@ -1,5 +1,7 @@
 # Hundredmark
 
+The interface is [Sutra UI](https://github.com/AkhilSingh2/sutra-ui) (`@sutra-ui/tokens` and `@sutra-ui/react`), vendored from commit `ba0f4b4` in [`vendor/sutra-ui`](vendor/sutra-ui). Those packages are not on npm. The gallery tokens supply Fraunces for display, ivory and ink surfaces, and a gold rule. App styles use those CSS variables.
+
 A static site with two tools aimed at real search demand in India:
 
 - **CGPA to percentage**, including percentage back to CGPA and a credit-weighted SGPA average
@@ -84,6 +86,6 @@ On Vercel, import the repository, leave the base path empty, and set `NEXT_PUBLI
 
 ## Privacy
 
-Both tools run in the browser. There is no account and no analytics script. The theme choice is the only value stored in local storage. Fonts are downloaded with the site, not from a third party at view time. Details are on the privacy page.
+Both tools run in the browser. There is no account and no analytics script. The theme (light, dark, high contrast, or match the system) and the English display language are the only values stored in local storage. Fraunces, Inter, Noto Sans Devanagari, and IBM Plex Mono ship with the site. The page does not request a font, a QR API, or an advertising network while you use it. Details are on the privacy page.
 
 Formulas were read from the linked documents on 25 November 2026. A university can change a rule. Use the document your grade card or the form in front of you names.

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Badge, Card, CardBody, CardFooter, CardHeader, CardTitle } from '@sutra-ui/react'
+import { FaqList } from '@/components/FaqList'
 import { JsonLd } from '@/components/JsonLd'
+import { SiteFrame } from '@/components/SiteFrame'
 import { PRESETS } from '@/data/presets'
 import { pageMetadata } from '@/lib/metadata'
 import { faqJsonLd, webAppJsonLd } from '@/lib/schema'
@@ -38,7 +41,10 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <main id="content" className="page" tabIndex={-1}>
+    <SiteFrame
+      title="Convert a CGPA, or print a UPI QR code."
+      description="Hundredmark is a CGPA to percentage calculator and a free UPI QR code generator. The grade formulas are the ones each board published, with the circular linked beside the result. The QR code is built in your browser."
+    >
       <JsonLd
         data={{
           '@context': 'https://schema.org',
@@ -50,31 +56,46 @@ export default function HomePage() {
       />
       <JsonLd data={webAppJsonLd({ name: 'CGPA to percentage calculator', description, path: '/cgpa-to-percentage/', category: 'EducationalApplication' })} />
       <JsonLd data={faqJsonLd(faqs)} />
-      <header className="page-intro">
-        <p className="eyebrow">No ads. No account.</p>
-        <h1>Convert a CGPA, or print a UPI QR code.</h1>
-        <p className="lede">
-          Hundredmark is a CGPA to percentage calculator and a free UPI QR code generator. The grade formulas are the ones each board published, with the circular linked beside the result. The QR code is built in your browser.
-        </p>
-      </header>
-      <div className="card-grid">
-        <Link className="card" href="/cgpa-to-percentage/">
-          <p className="eyebrow">Grade cards</p>
-          <h2>CGPA to percentage</h2>
-          <p>Convert CGPA, reverse a percentage, or average SGPA across semesters. CBSE, VTU, AKTU, Anna University, Mumbai University, and more.</p>
-          <span>Open the calculator</span>
+      <Badge tone="accent">No ads. No account.</Badge>
+      <h2 className="sutra-sr">Tools</h2>
+      <div className="hm-cards">
+        <Link className="hm-card-link" href="/cgpa-to-percentage/">
+          <Card>
+            <CardHeader>
+              <div className="hm-card-kicker">
+                <Badge>Grade cards</Badge>
+              </div>
+              <CardTitle>CGPA to percentage</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <p>Convert CGPA, reverse a percentage, or average SGPA across semesters. CBSE, VTU, AKTU, Anna University, Mumbai University, and more.</p>
+            </CardBody>
+            <CardFooter>
+              <span className="hm-card-action">Open the calculator</span>
+            </CardFooter>
+          </Card>
         </Link>
-        <Link className="card" href="/upi-qr-code-generator/">
-          <p className="eyebrow">Shop counter</p>
-          <h2>UPI QR code</h2>
-          <p>Enter a UPI ID, a name, and an optional amount. Download a PNG or SVG, copy the upi://pay link, or print a shop poster.</p>
-          <span>Make a QR code</span>
+        <Link className="hm-card-link" href="/upi-qr-code-generator/">
+          <Card>
+            <CardHeader>
+              <div className="hm-card-kicker">
+                <Badge>Shop counter</Badge>
+              </div>
+              <CardTitle>UPI QR code</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <p>Enter a UPI ID, a name, and an optional amount. Download a PNG or SVG, copy the upi://pay link, or print a shop poster.</p>
+            </CardBody>
+            <CardFooter>
+              <span className="hm-card-action">Make a QR code</span>
+            </CardFooter>
+          </Card>
         </Link>
       </div>
-      <section className="prose">
+      <section className="hm-prose">
         <h2>University and board formulas</h2>
         <p>The same CGPA is not the same percentage. Open the institution that printed your grade card.</p>
-        <ul className="link-grid">
+        <ul className="hm-links">
           {PRESETS.map((preset) => (
             <li key={preset.slug}>
               <Link href={`/cgpa-to-percentage/${preset.slug}/`}>{preset.shortName} CGPA to percentage</Link>
@@ -82,17 +103,7 @@ export default function HomePage() {
           ))}
         </ul>
       </section>
-      <section className="prose">
-        <h2>Questions</h2>
-        <div className="faq-list">
-          {faqs.map((faq) => (
-            <article key={faq.question}>
-              <h3>{faq.question}</h3>
-              <p>{faq.answer}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-    </main>
+      <FaqList faqs={faqs} />
+    </SiteFrame>
   )
 }
